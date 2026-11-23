@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Analisi attività e creazione allenamenti bici per intervals.icu">
+  <title>Allenamenti</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 id="page-title">Analisi</h1>
+    <span id="net-status" class="net-status" hidden>offline</span>
+  </header>
+
+  <main>
+    <!-- ANALISI -->
+    <section id="view-analisi" class="view" data-title="Analisi">
+      <div id="analisi-setup" class="card notice" hidden>
+        <p>Per iniziare inserisci la chiave API e l'Athlete ID nelle <a href="#impostazioni">Impostazioni</a>.</p>
+      </div>
+      <div class="toolbar">
+        <span class="muted" id="analisi-range">Ultimi 30 giorni</span>
+        <button id="btn-refresh" class="btn small">Aggiorna</button>
+      </div>
+      <div id="analisi-status" class="status" hidden></div>
+      <div id="analisi-content" hidden>
+        <div class="kpis" id="kpis"></div>
+
+        <div class="card">
+          <h2>Carico di allenamento giornaliero</h2>
+          <div id="chart-load" class="chart"></div>
+        </div>
+
+        <div class="card" id="card-fitness" hidden>
+          <h2>Fitness (CTL) · Fatica (ATL) · Forma</h2>
+          <div id="chart-fitness" class="chart"></div>
+          <div class="legend">
+            <span><i style="background:var(--c-ctl)"></i>CTL</span>
+            <span><i style="background:var(--c-atl)"></i>ATL</span>
+            <span><i style="background:var(--c-tsb)"></i>Forma (TSB)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Tempo nelle zone di potenza</h2>
+          <div id="chart-zones-power" class="chart"></div>
+        </div>
+
+        <div class="card">
+          <h2>Tempo nelle zone cardio</h2>
+          <div id="chart-zones-hr" class="chart"></div>
+        </div>
+
+        <div class="card">
+          <h2>Attività</h2>
+          <ul id="activity-list" class="activity-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CREA ALLENAMENTO -->
+    <section id="view-crea" class="view" data-title="Crea allenamento" hidden>
+      <div class="card">
+        <label class="field">
+          <span>Nome</span>
+          <input id="wo-name" type="text" value="Allenamento Z2" maxlength="80">
+        </label>
+        <div class="row">
+          <label class="field">
+            <span>Data</span>
+            <input id="wo-date" type="date">
+          </label>
+          <label class="field">
+            <span>Tipo</span>
+            <select id="wo-type">
+              <option value="Ride">Bici</option>
+              <option value="VirtualRide">Bici indoor</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span>Modello di partenza</span>
+          <select id="wo-preset">
+            <option value="">— Scegli un modello —</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>Profilo</h2>
+        <div id="wo-profile" class="chart profile"></div>
+        <div class="wo-summary" id="wo-summary"></div>
+      </div>
+
+      <div class="card">
+        <h2>Blocchi</h2>
+        <div id="wo-blocks" class="blocks"></div>
+        <div class="row gap">
+          <button id="btn-add-step" class="btn">+ Blocco</button>
+          <button id="btn-add-repeat" class="btn">+ Ripetute</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <details>
+          <summary>Testo per intervals.icu</summary>
+          <pre id="wo-text" class="wo-text"></pre>
+        </details>
+        <label class="field">
+          <span>Note (facoltative)</span>
+          <textarea id="wo-notes" rows="2" placeholder="Es. pedalata agile, cadenza 90+"></textarea>
+        </label>
+        <button id="btn-upload" class="btn primary block">Carica nel calendario</button>
+        <div id="wo-status" class="status" hidden></div>
+      </div>
+    </section>
+
+    <!-- IMPOSTAZIONI -->
+    <section id="view-impostazioni" class="view" data-title="Impostazioni" hidden>
+      <form id="settings-form" class="card" autocomplete="off">
+        <label class="field">
+          <span>Chiave API</span>
+          <div class="input-group">
+            <input id="set-apikey" type="password" inputmode="text" autocapitalize="off" spellcheck="false" placeholder="La tua chiave API" required>
+            <button type="button" id="btn-toggle-key" class="btn small" aria-label="Mostra chiave">Mostra</button>
+          </div>
+        </label>
+        <label class="field">
+          <span>Athlete ID</span>
+          <input id="set-athlete" type="text" autocapitalize="off" spellcheck="false" placeholder="es. i123456" required>
+        </label>
+        <p class="hint">Li trovi su intervals.icu in <b>Settings → Developer Settings</b>. L'Athlete ID inizia con «i». Le credenziali restano solo su questo telefono (localStorage) e vengono inviate unicamente a intervals.icu.</p>
+        <div class="row gap">
+          <button type="submit" class="btn primary">Salva</button>
+          <button type="button" id="btn-test" class="btn">Prova connessione</button>
+        </div>
+        <div id="settings-status" class="status" hidden></div>
+      </form>
+
+      <div class="card">
+        <h2>Dati sul dispositivo</h2>
+        <p class="hint">Cancella chiave API, Athlete ID e dati in cache da questo telefono.</p>
+        <button type="button" id="btn-clear" class="btn danger">Cancella dati</button>
+      </div>
+
+      <p class="muted center small">Allenamenti · PWA per intervals.icu</p>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="Navigazione">
+    <a href="#analisi" data-view="analisi">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
+      <span>Analisi</span>
+    </a>
+    <a href="#crea" data-view="crea">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+      <span>Crea</span>
+    </a>
+    <a href="#impostazioni" data-view="impostazioni">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></svg>
+      <span>Impostazioni</span>
+    </a>
+  </nav>
+
+  <template id="tpl-step">
+    <div class="step">
+      <div class="step-main">
+        <input class="s-label" type="text" placeholder="Etichetta (facoltativa)" maxlength="40">
+        <div class="row">
+          <label class="mini"><span>Min</span><input class="s-min" type="number" inputmode="numeric" min="0" max="600" value="10"></label>
+          <label class="mini"><span>Sec</span><input class="s-sec" type="number" inputmode="numeric" min="0" max="59" value="0"></label>
+          <label class="mini grow"><span>Intensità</span>
+            <select class="s-target"></select>
+          </label>
+        </div>
+        <div class="row s-pct-row" hidden>
+          <label class="mini"><span>% FTP da</span><input class="s-p1" type="number" inputmode="numeric" min="20" max="300" value="60"></label>
+          <label class="mini"><span>a</span><input class="s-p2" type="number" inputmode="numeric" min="20" max="300" value=""></label>
+        </div>
+      </div>
+      <div class="step-actions">
+        <button class="icon-btn s-up" aria-label="Sposta su">↑</button>
+        <button class="icon-btn s-down" aria-label="Sposta giù">↓</button>
+        <button class="icon-btn s-del" aria-label="Elimina">✕</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="js/api.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/workout.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
