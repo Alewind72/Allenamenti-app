@@ -84,18 +84,17 @@
     const m = { t: 10, r: 8, b: 22, l: 30 };
     const iw = W - m.l - m.r;
     const ih = H - m.t - m.b;
-    let lo = Math.min(0, ...all);
-    let hi = Math.max(...all);
-    hi = niceMax(hi);
-    if (lo < 0) lo = -niceMax(-lo);
+    const rawLo = Math.min(0, ...all);
+    const rawHi = Math.max(1, ...all);
+    const tickStep = niceMax((rawHi - rawLo) / 4);
+    const lo = Math.floor(rawLo / tickStep) * tickStep;
+    const hi = Math.ceil(rawHi / tickStep) * tickStep;
     const span = hi - lo || 1;
     const y = (v) => m.t + ih - ((v - lo) / span) * ih;
     const x = (i) => m.l + (labels.length > 1 ? (i * iw) / (labels.length - 1) : iw / 2);
     const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': opts.label || 'grafico' }, container);
 
-    const ticks = 4;
-    for (let i = 0; i <= ticks; i++) {
-      const v = lo + (span * i) / ticks;
+    for (let v = lo; v <= hi + 1e-9; v += tickStep) {
       el('line', { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: 'grid' }, svg);
       el('text', { x: m.l - 4, y: y(v) + 3, 'text-anchor': 'end' }, svg).textContent = Math.round(v);
     }

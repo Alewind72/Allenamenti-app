@@ -1,6 +1,6 @@
 /* Service worker: rende l'app disponibile offline.
  * Le chiamate all'API di intervals.icu non vengono mai messe in cache. */
-const CACHE = 'allenamenti-v1';
+const CACHE = 'allenamenti-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ const ASSETS = [
   './js/api.js',
   './js/charts.js',
   './js/workout.js',
+  './js/plan.js',
+  './js/plan-ui.js',
   './js/app.js',
   './manifest.webmanifest',
   './icons/icon.svg',

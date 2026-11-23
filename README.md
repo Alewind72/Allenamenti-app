@@ -13,6 +13,11 @@ Web app (PWA) in italiano per **intervals.icu**, ottimizzata per smartphone Andr
   - tempo nelle zone di potenza e cardio;
   - elenco delle attività.
   Gli ultimi dati scaricati restano in cache, così si vedono anche offline.
+- **Piano mensile (fase Z2)**: indichi quanto tempo hai ogni giorno e l'app genera 4 settimane (3 di carico crescente + 1 di scarico), con seduta lunga nel giorno con più tempo e uscita facile il giorno dopo. Opzionale: una seduta con tempo (Z3) a settimana.
+  - Legge fitness (CTL) e fatica (ATL) attuali da intervals.icu e **simula** come cambieranno giorno per giorno.
+  - **Adatta il volume automaticamente**: sceglie il volume più alto che non fa salire la fitness di più di 5 punti a settimana e non porta la forma (TSB) sotto −25.
+  - **Valuta il piano** (verde / giallo / rosso): crescita della fitness, fatica, recupero a fine mese, quota di tempo facile, giorni consecutivi. Se il piano è troppo blando ti dice quante ore servirebbero.
+  - Carica tutte le sedute nel calendario in un colpo solo, e permette di **eliminarle** se vuoi rifare il piano. Ogni seduta si può aprire e modificare in «Crea».
 - **Crea allenamento**: editor di allenamenti in bici a zone (Z1–Z7, sweet spot, % FTP, rampe) con ripetute, profilo grafico, durata e carico stimato. Ci sono modelli pronti (Z2, tempo, sweet spot, soglia, VO2max, 30/30). L'allenamento viene caricato nel calendario di intervals.icu con `POST /api/v1/athlete/{id}/events` e il formato testo del workout builder di intervals.icu, quindi lo puoi sincronizzare su Garmin, Wahoo, Zwift, ecc.
 
 ## Dove trovo chiave API e Athlete ID
@@ -43,6 +48,8 @@ css/style.css         stile (tema scuro, layout mobile)
 js/api.js             client intervals.icu (Basic Auth, credenziali da localStorage)
 js/charts.js          grafici SVG
 js/workout.js         modello allenamenti, modelli pronti, conversione in testo intervals.icu
+js/plan.js            generazione, simulazione CTL/ATL/TSB e valutazione del piano mensile
+js/plan-ui.js         interfaccia della scheda Piano
 js/app.js             interfaccia e navigazione
 sw.js                 service worker (uso offline; le chiamate API non vanno mai in cache)
 manifest.webmanifest  manifest PWA
@@ -57,3 +64,16 @@ Dopo aver modificato i file, cambia il nome della cache in `sw.js` (es. `allenam
 
 - La chiave API viene inviata solo a `intervals.icu` tramite HTTPS.
 - Chi ha accesso fisico al telefono sbloccato potrebbe leggere il `localStorage` del browser. Usa «Cancella dati» se presti il dispositivo, e rigenera la chiave su intervals.icu se pensi che sia stata compromessa.
+
+## Come funziona la valutazione del piano
+
+Il carico di ogni seduta è stimato dall'intensità (% FTP), come il TSS. Fitness (CTL) e fatica (ATL) sono medie esponenziali del carico giornaliero su 42 e 7 giorni; la forma (TSB) è CTL − ATL.
+
+| Controllo | Verde | Giallo | Rosso |
+|---|---|---|---|
+| Crescita fitness (settimane di carico) | +2 / +5 CTL a settimana | +5 / +8, oppure meno di +2 (blando) | oltre +8 |
+| Forma minima (TSB) | sopra −25 | −25 / −30 | sotto −30 |
+| Forma a fine mese | sopra −10 | sotto −10 | — |
+| Tempo sotto il 75% FTP | almeno 80% | meno dell'80% | — |
+
+Sono indicazioni generali per una fase di base, non un parere medico: ascolta anche sonno, sensazioni e battito a riposo.

@@ -126,6 +126,27 @@
     createEvent(event) {
       return request('/athlete/{athlete}/events', { method: 'POST', body: event });
     },
+
+    /** Crea più eventi; se l'endpoint bulk non è disponibile li crea uno alla volta. */
+    async createEvents(events, onProgress) {
+      try {
+        const res = await request('/athlete/{athlete}/events/bulk', { method: 'POST', body: events });
+        if (onProgress) onProgress(events.length, events.length);
+        return Array.isArray(res) ? res : [];
+      } catch (e) {
+        if (![404, 405].includes(e.status)) throw e;
+      }
+      const out = [];
+      for (let i = 0; i < events.length; i++) {
+        out.push(await request('/athlete/{athlete}/events', { method: 'POST', body: events[i] }));
+        if (onProgress) onProgress(i + 1, events.length);
+      }
+      return out;
+    },
+
+    deleteEvent(id) {
+      return request('/athlete/{athlete}/events/' + encodeURIComponent(id), { method: 'DELETE' });
+    },
   };
 
   window.Api = Api;

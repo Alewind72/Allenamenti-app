@@ -53,7 +53,7 @@
 
   /* ---------- navigazione ---------- */
 
-  const VIEWS = ['analisi', 'crea', 'impostazioni'];
+  const VIEWS = ['analisi', 'crea', 'piano', 'impostazioni'];
   let analysisLoaded = false;
 
   function route() {
@@ -66,6 +66,7 @@
 
     if (v === 'analisi') enterAnalysis();
     if (v === 'crea') renderBuilder();
+    if (v === 'piano') PlanUI.enter();
   }
 
   /* ---------- impostazioni ---------- */
@@ -542,6 +543,18 @@
       btn.disabled = false;
     }
   }
+
+  /** Apre una seduta del piano nell'editor «Crea». */
+  function openInBuilder(session, date) {
+    builder.blocks = JSON.parse(JSON.stringify(session.blocks));
+    $('#wo-name').value = session.name;
+    $('#wo-type').value = session.sport || 'Ride';
+    $('#wo-notes').value = session.notes || '';
+    if (date) $('#wo-date').value = date;
+    setStatus($('#wo-status'), '');
+    location.hash = '#crea';
+  }
+  window.App = { openInBuilder };
 
   function debounce(fn, ms) {
     let t;
